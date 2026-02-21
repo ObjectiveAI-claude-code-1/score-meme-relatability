@@ -1,0 +1,175 @@
+{
+  "type": "scalar.function",
+  "input_schema": {
+    "type": "object",
+    "description": "A single meme to be scored on its relatability — how broadly it connects with shared human experiences.",
+    "properties": {
+      "meme": {
+        "type": "image",
+        "description": "The meme to evaluate for relatability. This should be a self-contained meme image — typically an image with overlaid text, a captioned photo, a screenshot, or any visual format that conveys a humorous or emotionally resonant observation about shared human experience. The meme will be evaluated across three dimensions: universality of experience (how broadly the depicted scenario has been lived by people), emotional resonance (how powerfully it recreates the feeling of that experience), and accessibility (how easily it can be understood without specialized or insider knowledge)."
+      }
+    },
+    "required": [
+      "meme"
+    ]
+  },
+  "tasks": [
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            {
+              "type": "text",
+              "text": "You are a cultural analyst who studies how broadly internet memes connect with shared human experiences. You evaluate whether the experience a meme depicts is something most people have lived through or something only a narrow group would recognize."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Look at this meme. If you showed it to 100 random people from different ages, cultures, and walks of life, how many would personally recognize and relate to the experience it depicts?"
+            },
+            {
+              "$jmespath": "input.meme"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "Almost all of them — this captures a near-universal human experience that transcends age, culture, and background. Nearly everyone has felt this."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "A solid majority — this is a broadly shared experience that most people would recognize from their own lives, though not absolutely everyone."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "A moderate portion — this connects with a sizable group, but it draws on an experience that a significant number of people would not personally relate to."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "Very few of them — this is rooted in a niche scenario, a specific subculture, or a narrow life experience that most people have never encountered."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.667 + output['scores'][2] * 0.333 + output['scores'][3] * 0.0"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "You're scrolling through social media and come across this meme. Describe your gut reaction — how does it make you feel?"
+            },
+            {
+              "$jmespath": "input.meme"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "I feel completely called out — this captures exactly how that experience feels, not just what it is. I need to send this to someone right now because it perfectly channels a feeling I thought was just mine."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "That's pretty relatable — it does a good job of capturing the vibe of a familiar experience. I'd probably share it with a friend who'd get it."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "I can see what it's going for, but it doesn't really land emotionally. It describes a situation I might recognize but doesn't make me feel anything about it."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "This doesn't resonate with me at all. I don't feel any personal connection or emotional reaction to what's being depicted here."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.667 + output['scores'][2] * 0.333 + output['scores'][3] * 0.0"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            {
+              "type": "text",
+              "text": "You evaluate how accessible memes are to a general audience. A meme is accessible when anyone can understand and emotionally connect with it without needing specialized knowledge, insider references, or subcultural familiarity."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "$jmespath": "input.meme"
+            },
+            {
+              "type": "text",
+              "text": "How much background knowledge or context would someone need to understand and emotionally connect with this meme?"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "None at all — this meme is immediately understandable to anyone. It draws on everyday life experiences that require no special knowledge, internet literacy, or cultural context to grasp."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "Minimal — the meme may use a recognizable internet format, but the core experience it depicts is clear and relatable even to someone unfamiliar with the template."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "A fair amount — understanding this meme requires familiarity with a specific community, reference, or piece of media. Without that context, the emotional point would be partially lost."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "Extensive — this meme is deeply rooted in niche knowledge. Someone without specific insider context would not understand or connect with it at all."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.667 + output['scores'][2] * 0.333 + output['scores'][3] * 0.0"
+      }
+    }
+  ],
+  "description": "Scores a single meme on its relatability — how broadly it connects with shared human experiences. Evaluates three dimensions: universality of experience, emotional resonance, and accessibility. Memes rooted in widely felt moments score higher; those built on niche or obscure scenarios score lower."
+}
